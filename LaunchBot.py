@@ -7,23 +7,46 @@ reddit = praw.Reddit('launchBot')
 
 subreddit = reddit.subreddit("pythonforengineers")
 
-commentPattern = re.compile(r"when(\sis\s|\sdoes\s|\'s\s)(\S*\s){0,4}launch",re.IGNORECASE)
+commentPattern = re.compile(r"when(\sis\s|\sdoes\s|\'s\s|\sare\s)(\S*\s){0,4}launch(?!\scomplex\s\d)",re.IGNORECASE)
 
-rocketPattern = re.compile("Electron|Haste|Neutron",re.IGNORECASE)
-def get_next_launch(rocket = None):
+rocketPattern = re.compile(r"Electron|Haste|Neutron",re.IGNORECASE)
+locationNZPattern = re.compile(r"NZ|New Zealand|Mahia|Launch Complex 1|LC1",re.IGNORECASE)
+locationUSPattern = re.compile(r"US|United States|Virginia|USA|Wallops|Launch Complex 2|LC2",re.IGNORECASE)
+
+def get_next_launch(rocket = None, location = None):
     try:
         url = "https://ll.thespacedevs.com/2.2.0/launch/upcoming/"
         params = {
             "hide_recent_previous": "true",
             "include_suborbital": "true",
             "limit":1,
+            #LSP = Launch Service Provider
             "lsp__id":"147",
-            "rocket__configuration__id": rocket
+            "rocket__configuration__name": rocket,
+            "location__ids": location
         }
+        print(rocket)
         response = requests.get(url, params)
         print("Request made to: ", response.url)
+        launchInfo = extract_launch_info(response)
+        if launchInfo == None:
+            if(rocket and not location):
+                launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at the moment"
+            elif(location and not rocket):
+                launchInfo = f"Rocketlab doesn't have any official launches scheduled at {location} at the moment"
+            elif(rocket and location):
+                launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at {location} at the moment"
+            else:
+                launchInfo = "Rocketlab doesn't have any official launches scheduled at the moment"
+            
+            
+        
+    except Exception as e:
+        exit_handler()
+        print("Error retrieving launch information:", e)
 
-        if response.status_code==200:
+def extract_launch_info(response):
+    if response.status_code==200:
             launches = response.json().get("results",[])
             if launches:
                 print("Found a launch")
@@ -55,12 +78,10 @@ def get_next_launch(rocket = None):
                     f"This is launch #{agency_launch_attempt_count_year} this year, and launch #{agency_launch_attempt_count} overall.  "
                     f"The mission is stated as follows: {mission_description}"
                 )
+                print(launch_info)
                 return launch_info
-            launch_info = f"There are no officially scheduled launches for {rocket} at the moment"
-            return(launch_info)
-    except Exception as e:
-        exit_handler()
-        print("Error retrieving launch information:", e)
+            print("Returning none")
+            return None
 
 
 if not os.path.isfile("comments_replied_to.txt"):
@@ -84,21 +105,32 @@ try:
         print("Found new comment")
         if comment.id not in comments_replied_to:
             print("Comment not replied to yet")
-
-            
             if commentPattern.search(comment.body):
                 try:
                     print("Found a comment asking about Rocket Lab's next launch")
                     print(comment.body)
                     rocket_name_match = rocketPattern.search(comment.body)
-                    rocket_name = rocket_name_match.group() if rocket_name_match else None
+                    rocket_name = rocket_name_match.group().capitalize() if rocket_name_match else None
+                    location_nz_name_match = locationNZPattern.search(comment.body)
+                    location_us_name_match = locationUSPattern.search(comment.body)
+                    location_id = None
+                    #if the comment contains both locations, disregard the location.
+                    # this is assuming that the comment contains both locations because the user is unsure of the location/asking about either
+                    if not (location_nz_name_match and location_us_name_match):
+                        print("Found a location")
+                        if(location_nz_name_match):
+                            #Mahia LC1 location id
+                            print("Comment mentions mahia")
+                            location_id = "10"
+                        if(location_us_name_match):
+                            
+                            #Wallops LC2 location id
+                            print("Comment mentions wallops")
+                            location_id = "21"
+                    launchInfo = get_next_launch(rocket_name,location_id)
                     
-                    launchInfo = get_next_launch(rocket_name.capitalize)
-                    print(launchInfo)
                     #below commented out for testing
                     # if comment.author.name != reddit.user.me().name:
-            
-                
                     #comment.reply(launchInfo)
                     comments_replied_to.append(comment.id)
                     print("Replied to:", comment.id)
