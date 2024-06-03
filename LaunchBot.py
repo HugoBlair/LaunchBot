@@ -31,14 +31,14 @@ def get_next_launch(rocket = None, location = None):
         launchInfo = extract_launch_info(response)
         if launchInfo == None:
             if(rocket and not location):
-                launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at the moment"
+                launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at the moment  \n"
             elif(location and not rocket):
-                launchInfo = f"Rocketlab doesn't have any official launches scheduled at {location} at the moment"
+                launchInfo = f"Rocketlab doesn't have any official launches scheduled at {location} at the moment  \n"
             elif(rocket and location):
-                launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at {location} at the moment"
+                launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at {location} at the moment  \n"
             else:
-                launchInfo = "Rocketlab doesn't have any official launches scheduled at the moment"
-            
+                launchInfo = f"Rocketlab doesn't have any official launches scheduled at the moment.  \n"
+        return launchInfo
             
         
     except Exception as e:
@@ -73,10 +73,11 @@ def extract_launch_info(response):
                 agencies_info = agencies_info.rstrip(", ")
                         
                 launch_info = (
-                    f"Rocket Lab is launching {rocket_name} next, on {launch_window_start} from {pad_name} ({pad_location_name}).  "
-                    f"They are launching {mission_name} {'for' if len(agencies)==1 else 'a rideshare mission for '} {agencies_info}.  "
-                    f"This is launch #{agency_launch_attempt_count_year} this year, and launch #{agency_launch_attempt_count} overall.  "
-                    f"The mission is stated as follows: {mission_description}"
+                    f"Rocket Lab is launching {rocket_name} next, on {launch_window_start} from {pad_name} ({pad_location_name}).  \n"
+                    f"They are launching {mission_name} {'for' if len(agencies)==1 else 'a rideshare mission for '} {agencies_info}.  \n"
+                    f"This is launch #{agency_launch_attempt_count_year} this year, and launch #{agency_launch_attempt_count} overall.  \n"
+                    f"The mission is stated as follows: {mission_description}  \n"
+                    
                 )
                 print(launch_info)
                 return launch_info
@@ -128,10 +129,10 @@ try:
                             print("Comment mentions wallops")
                             location_id = "21"
                     launchInfo = get_next_launch(rocket_name,location_id)
-                    
+                    launchInfo += "Bleep Bloop, I'm a bot."
                     #below commented out for testing
                     # if comment.author.name != reddit.user.me().name:
-                    #comment.reply(launchInfo)
+                    comment.reply(launchInfo)
                     comments_replied_to.append(comment.id)
                     print("Replied to:", comment.id)
                 except Exception as e:
