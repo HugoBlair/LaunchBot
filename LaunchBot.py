@@ -9,9 +9,6 @@ subreddit = reddit.subreddit("pythonforengineers")
 
 commentPattern = re.compile(r"when(\sis\s|\sdoes\s|\'s\s)(\S*\s){0,4}launch",re.IGNORECASE)
 
-#Other two to be filled out once available
-rocket_ids = {"electron":26}
-
 rocketPattern = re.compile("Electron|Haste|Neutron",re.IGNORECASE)
 def get_next_launch(rocket = None):
     try:
@@ -95,7 +92,8 @@ try:
                     print(comment.body)
                     rocket_name_match = rocketPattern.search(comment.body)
                     rocket_name = rocket_name_match.group() if rocket_name_match else None
-                    launchInfo = get_next_launch(rocket_name)
+                    
+                    launchInfo = get_next_launch(rocket_name.capitalize)
                     print(launchInfo)
                     #below commented out for testing
                     # if comment.author.name != reddit.user.me().name:
