@@ -1,6 +1,8 @@
+from datetime import datetime
 import os
 import re
 import praw
+import pytz
 import requests
 
 reddit = praw.Reddit('launchBot')
@@ -73,7 +75,8 @@ def extract_launch_info(response):
                 agencies_info = agencies_info.rstrip(", ")
                         
                 launch_info = (
-                    f"Rocket Lab is launching {rocket_name} next, on {launch_window_start} from {pad_name} ({pad_location_name}).  \n"
+                    f"Rocket Lab is launching {rocket_name} next from {pad_name} ({pad_location_name}).  \n"
+                    f"{convert_time(launch_window_start)}"
                     f"They are launching {mission_name} {'for' if len(agencies)==1 else 'a rideshare mission for '} {agencies_info}.  \n"
                     f"This is launch #{agency_launch_attempt_count_year} this year, and launch #{agency_launch_attempt_count} overall.  \n"
                     f"The mission is stated as follows: {mission_description}  \n"
@@ -84,6 +87,29 @@ def extract_launch_info(response):
             print("Returning none")
             return None
 
+def convert_time(input_time):
+    input_time = input_time[:-1]
+    
+    # Parse the ISO 8601 time string into a datetime object
+    dt = datetime.fromisoformat(input_time)
+    
+    # Define the UTC and New Zealand time zones
+    utc_tz = pytz.timezone('UTC')
+    nz_tz = pytz.timezone('Pacific/Auckland')
+    
+    # Localize the datetime object to UTC
+    dt_utc = dt.astimezone(utc_tz)
+    
+    # Convert the UTC datetime to New Zealand Time
+    dt_nz = dt_utc.astimezone(nz_tz)
+    
+    # Format the datetime objects into string formats
+    formatted_time_utc = dt_utc.strftime('%H:%M : %d-%m-%Y UTC')
+    formatted_time_nz = dt_nz.strftime('%H:%M : %d-%m-%Y NZT')
+    
+    output_string = f"The launch window starts at {formatted_time_utc} ({formatted_time_nz}).  \n"
+    
+    return output_string
 
 if not os.path.isfile("comments_replied_to.txt"):
     comments_replied_to = []
