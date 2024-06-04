@@ -97,28 +97,33 @@ def extract_launch_info(response):
             return None
 
 def convert_time(input_time):
-    input_time = input_time[:-1]
+    try:
+        input_time = input_time[:-1]
+        
+        # Parse the ISO 8601 time string into a datetime object
+        dt = datetime.fromisoformat(input_time)
+        dt = pytz.utc.localize(dt)
+        # Define the UTC and New Zealand time zones
+        utc_tz = pytz.timezone('UTC')
+        nz_tz = pytz.timezone('Pacific/Auckland')
+        
+        # Localize the datetime object to UTC
+        dt_utc = dt.astimezone(utc_tz)
+        
+        # Convert the UTC datetime to New Zealand Time
+        dt_nz = dt.astimezone(nz_tz)
+        
+        # Format the datetime objects into string formats
+        formatted_time_utc = dt.strftime('%H:%M : %d-%m-%Y UTC')
+        formatted_time_nz = dt_nz.strftime('%H:%M : %d-%m-%Y NZT')
+        
+        output_string = f"The launch window starts at {formatted_time_utc} ({formatted_time_nz}).  \n\n"
+        
+        return output_string
+    except ValueError as e:
+        print("Invalid input:", e)
+        return "I cannot retrieve the launch time at the moment. \n\n"
     
-    # Parse the ISO 8601 time string into a datetime object
-    dt = datetime.fromisoformat(input_time)
-    dt = pytz.utc.localize(dt)
-    # Define the UTC and New Zealand time zones
-    utc_tz = pytz.timezone('UTC')
-    nz_tz = pytz.timezone('Pacific/Auckland')
-    
-    # Localize the datetime object to UTC
-    dt_utc = dt.astimezone(utc_tz)
-    
-    # Convert the UTC datetime to New Zealand Time
-    dt_nz = dt.astimezone(nz_tz)
-    
-    # Format the datetime objects into string formats
-    formatted_time_utc = dt.strftime('%H:%M : %d-%m-%Y UTC')
-    formatted_time_nz = dt_nz.strftime('%H:%M : %d-%m-%Y NZT')
-    
-    output_string = f"The launch window starts at {formatted_time_utc} ({formatted_time_nz}).  \n\n"
-    
-    return output_string
 
 #Load comments replied to from file
 if not os.path.isfile("comments_replied_to.txt"):

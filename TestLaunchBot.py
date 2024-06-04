@@ -74,15 +74,12 @@ class TestLaunchBot(unittest.TestCase):
         )
         result = convert_time(input_time)
         self.assertEqual(result, expected_output)
-
+    
     def test_convert_time_invalid_input(self):
         input_time = "invalid"
-        expected_output = "Invalid time format"
-        result = convert_time(input_time)
-        self.assertRaises(ValueError, result)
-
-    def test_comment_patterns(self):
+        self.assertEqual("I cannot retrieve the launch time at the moment. \n\n", convert_time(input_time))
         
+    def test_comment_patterns(self):
         test_comments = ("When is the next launch of Electron from NZ?",
                         "When's Electron Launching from NZ?",
                         "When's NZ launching Electron?",
@@ -97,13 +94,11 @@ class TestLaunchBot(unittest.TestCase):
             self.assertIsNone(locationUSPattern.search(test_comment))
 
     def test_comment_patterns2(self):
-        
         test_comments = ("When is the next launch of Electron from US?",
                         "When's Electron Launching from US?",
                         "When's US launching Electron?",
                         "When will electron launch from US?",
                         "When are they launching Electron from US?"
-                        
         )
         for test_comment in test_comments:
             self.assertIsNotNone(commentPattern.search(test_comment))
