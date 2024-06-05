@@ -2,12 +2,13 @@
 
 LaunchBot is a Reddit bot designed to respond to user comments with information about upcoming rocket launches. It utilizes the Reddit API, along with data from TheSpaceDev's Launch Library 2 API, to provide users with details about Rocket Lab's next rocket launch.
 
-## Cool Features
+## Features
 - **Customized Responses**: Searches for the latest launch in a specific location, or for a specific rocket based on the user's comment
 - **Live Reddit Integration**: Continually monitors specified subreddits for user comments containing queries about rocket launches.
 - **API Interaction**: Retrieves data from TheSpaceDev's Launch Library 2 API
 - **Regex Pattern Matching**: Identifies relevant phrases in user comments using regular expressions.
 - **Time Conversion**: Converts launch times from UTC to local time zone for display.
+- **Cloud Deployment**: LaunchBot is currently operational and deployed to an AWS EC2 instance for 24/7 operations.
 
 ## Installation
 
