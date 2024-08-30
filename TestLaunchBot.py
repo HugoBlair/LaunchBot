@@ -4,7 +4,6 @@ import re
 from datetime import datetime
 import pytz
 
-# Assuming your functions are in a file named rocket_launch_bot.py
 from LaunchBot import (
     get_next_launch, 
     extract_launch_info, 
