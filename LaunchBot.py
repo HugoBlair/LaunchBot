@@ -37,6 +37,18 @@ def setup_logger():
 # Set up the logger
 logger = setup_logger()
 
+# Load comments replied to from file
+if not os.path.isfile("comments_replied_to.txt"):
+    logger.info("Creating new comments_replied_to.txt file")
+    comments_replied_to = []
+else:
+    with open("comments_replied_to.txt", "r") as f:
+        logger.info("Loading existing comments_replied_to.txt")
+        comments_replied_to = f.read()
+        comments_replied_to = comments_replied_to.split("\n")
+        comments_replied_to = list(filter(None, comments_replied_to))
+        logger.info(f"Loaded {len(comments_replied_to)} previously replied comments")
+
 # Accessing the reddit API details from my praw.ini file (which is in the same directory as the script)
 # This information is kept private and not included in the repository
 logger.info("Initializing Reddit API connection")
@@ -168,17 +180,6 @@ def convert_time(input_time):
         return "I cannot retrieve the launch time at the moment. \n\n"
 
 
-# Load comments replied to from file
-if not os.path.isfile("comments_replied_to.txt"):
-    logger.info("Creating new comments_replied_to.txt file")
-    comments_replied_to = []
-else:
-    with open("comments_replied_to.txt", "r") as f:
-        logger.info("Loading existing comments_replied_to.txt")
-        comments_replied_to = f.read()
-        comments_replied_to = comments_replied_to.split("\n")
-        comments_replied_to = list(filter(None, comments_replied_to))
-        logger.info(f"Loaded {len(comments_replied_to)} previously replied comments")
 
 
 # Function to save comments replied to
