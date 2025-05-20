@@ -180,17 +180,15 @@ def convert_time(input_time):
         return "I cannot retrieve the launch time at the moment. \n\n"
 
 
-
-
 # Function to save comments replied to
-def exit_handler():
+def exit_handler(restart_program = True):
     logger.info("Exiting application and saving comment history")
     with open("comments_replied_to.txt", "w") as f:
         for comment_id in comments_replied_to:
             f.write(comment_id + "\n")
     logger.info(f"Saved {len(comments_replied_to)} comment IDs to file")
-
-    search_for_comments()
+    if restart_program is True:
+        search_for_comments()
 
 
 def search_for_comments():
@@ -254,7 +252,7 @@ def search_for_comments():
                 logger.debug(f"Comment from bot, ignoring: {comment.id}")
     except KeyboardInterrupt:
         logger.info("Bot stopped by user (KeyboardInterrupt)")
-        exit_handler()
+        exit_handler(False)
     except Exception as e:
         logger.critical(f"Unexpected error in main loop: {e}", exc_info=True)
         exit_handler()
