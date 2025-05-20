@@ -7,6 +7,7 @@ import requests
 import logging
 from logging.handlers import RotatingFileHandler
 
+
 # Configure logging
 def setup_logger():
     # Create logger
@@ -14,7 +15,7 @@ def setup_logger():
     logger.setLevel(logging.INFO)
 
     # Create file handler for logging to a file (max 5MB, keep 3 backup files)
-    file_handler = RotatingFileHandler('launchbot.log', maxBytes=5*1024*1024, backupCount=3)
+    file_handler = RotatingFileHandler('launchbot.log', maxBytes=5 * 1024 * 1024, backupCount=3)
     file_handler.setLevel(logging.INFO)
 
     # Create console handler for logging to console
@@ -31,6 +32,7 @@ def setup_logger():
     logger.addHandler(console_handler)
 
     return logger
+
 
 # Set up the logger
 logger = setup_logger()
@@ -75,14 +77,14 @@ def get_next_launch(rocket=None, location=None):
         launchInfo = extract_launch_info(response)
 
         # Handling cases where there are no launches scheduled with different query types
-        if launchInfo == None:
-            if (rocket and not location):
+        if launchInfo is None:
+            if rocket and not location:
                 launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at the moment  \n"
                 logger.info(f"No launches found for rocket: {rocket}")
-            elif (location and not rocket):
+            elif location and not rocket:
                 launchInfo = f"Rocketlab doesn't have any official launches scheduled at {location} at the moment  \n"
                 logger.info(f"No launches found at location ID: {location}")
-            elif (rocket and location):
+            elif rocket and location:
                 launchInfo = f"Rocketlab doesn't have any official launches scheduled for {rocket} at {location} at the moment  \n"
                 logger.info(f"No launches found for rocket: {rocket} at location ID: {location}")
             else:
@@ -115,7 +117,7 @@ def extract_launch_info(response):
             for agency in agencies:
                 agency_name = agency.get("name")
                 agency_abbrev = agency.get("abbrev")
-                if (agency_abbrev):
+                if agency_abbrev:
                     agencies_info += agency_name + " (" + agency_abbrev + "),"
                 else:
                     agencies_info += agency_name + ","
@@ -210,9 +212,10 @@ def search_for_comments():
                             # Get the position of the comment in the comment body.
                             found_comment_position = found_comment.start()
 
-                            # Searching for the matches of the rocket name and location in the comment
-                            # It only searches for mentions after the main pattern begins in order to prevent unrelated rocket/location...
-                            # ...mentions earlier in the comment being picked up as the rocket/location
+                            # Searching for the matches of the rocket name and location in the comment It only
+                            # searches for mentions after the main pattern begins in order to prevent unrelated
+                            # rocket/location... ...mentions earlier in the comment being picked up as the
+                            # rocket/location
                             rocket_name_match = rocketPattern.search(comment.body, found_comment_position)
                             rocket_name = rocket_name_match.group().capitalize() if rocket_name_match else None
                             if rocket_name:
@@ -221,8 +224,9 @@ def search_for_comments():
                             location_nz_name_match = locationNZPattern.search(comment.body, found_comment_position)
                             location_us_name_match = locationUSPattern.search(comment.body, found_comment_position)
 
-                            # if the comment contains both locations, disregard the location.
-                            # this is assuming that the comment contains both locations because the user is unsure of the location/asking about either
+                            # if the comment contains both locations, disregard the location. this is assuming that
+                            # the comment contains both locations because the user is unsure of the location/asking
+                            # about either
                             location_id = None
                             if not (location_nz_name_match and location_us_name_match):
                                 if location_nz_name_match:
@@ -234,10 +238,10 @@ def search_for_comments():
                                     logger.info("Location detected: Wallops/USA")
                                     location_id = "21"
 
-                            launchInfo = get_next_launch(rocket_name, location_id)
-                            launchInfo += "Bleep Bloop, I'm a bot."
+                            launch_info = get_next_launch(rocket_name, location_id)
+                            launch_info += "Bleep Bloop, I'm a bot."
 
-                            comment.reply(launchInfo)
+                            comment.reply(launch_info)
                             comments_replied_to.append(comment.id)
                             logger.info(f"Successfully replied to comment ID: {comment.id}")
                         except Exception as e:
